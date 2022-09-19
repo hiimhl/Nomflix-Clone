@@ -1,7 +1,5 @@
-import { motion, AnimatePresence, useViewportScroll } from "framer-motion";
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   getLatestMovies,
@@ -69,10 +67,7 @@ function Home() {
       ["upComing", "upComingMovie"], //
       getUpcomingMovies
     );
-
-  const { scrollY } = useViewportScroll();
-
-  const navigate = useNavigate();
+  console.log(latestData);
   const loading =
     nowIsLoading || latestIsLoading || topRatedIsLoading || upComingIsLoading;
   return (
@@ -113,18 +108,3 @@ function Home() {
   );
 }
 export default Home;
-//4:45
-
-//1. Header - font
-
-//2. 메인 텍스트 폰트 및 줄거리 폰트 ,, 글씨 잘라내기 = >자세히보기 상세페이지로 연결
-
-//3. Slider - btn 스타일링, 이전 슬라이더 모션 반대로 넣기
-
-//4. 디테일 카드 넣을 내용, 스타일 적용
-
-//5. 다양한 슬라이더 생성 - api 불러오기 및 적용
-
-//6. tv show 부분도 작성.... -> home 카피하기
-
-//7. search 페이지 작성 => tv, 영화 값 둘다 적용시켜야됨.

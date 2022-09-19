@@ -26,6 +26,8 @@ const Logo = styled(motion.svg)`
   width: 95px;
   height: 25px;
   fill: ${(props) => props.theme.red};
+  cursor: pointer;
+
   path {
     stroke-width: 6px;
     stroke: white;
@@ -39,10 +41,11 @@ const Items = styled.ul`
 
 const Item = styled.li`
   margin-right: 20px;
-  color: ${(props) => props.theme.white.darker};
+
   transition: color 0.3s ease-in-out;
   position: relative;
   display: flex;
+  font-size: 17px;
   justify-content: center;
   flex-direction: column;
 
@@ -107,10 +110,12 @@ const logoVariants = {
 
 const navVariants = {
   top: {
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    color: "gray",
   },
   scroll: {
     backgroundColor: "rgba(0,0,0,1)",
+    color: "white",
   },
 };
 
@@ -168,6 +173,7 @@ function Header() {
     <Nav animate={navAnimation} variants={navVariants} initial={"top"}>
       <Col>
         <Logo
+          onClick={() => navigate("/")}
           variants={logoVariants}
           initial="normal"
           whileHover="active"

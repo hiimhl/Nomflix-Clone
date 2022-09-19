@@ -1,10 +1,8 @@
 import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
-import { stringify } from "querystring";
 import React, { useState } from "react";
 
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
 import styled from "styled-components";
-import { getMovies, IGetMoviesResult } from "../api";
 import { makeImagePath } from "../utilities";
 import CardMovie from "./CardMovie";
 
@@ -202,7 +200,7 @@ function Slider({ data, title, dataType, path }: IData) {
                 .map((movie: any) => (
                   <Box
                     key={movie.id}
-                    layoutId={`${path}/${dataType}/${movie.id}`}
+                    layoutId={`/${path}/${dataType}/${movie.id}`}
                     variants={boxVariants}
                     whileHover="hover"
                     initial="normal"

@@ -111,18 +111,6 @@ export interface ILatestTv {
   type: string;
 }
 
-//Search
-export interface ISearch {
-  page: number;
-  results: [
-    {
-      id: number;
-      logo_path: string;
-      name: string;
-    }
-  ];
-}
-
 //Movies
 export function getMovies() {
   return fetch(`${BASE_PATH}movie/now_playing?api_key=${API_KEY}`).then((res) =>
@@ -167,14 +155,6 @@ export function getPopularTv() {
 
 export function getTopRatedTv() {
   return fetch(`${BASE_PATH}tv/top_rated?api_key=${API_KEY}`).then((res) =>
-    res.json()
-  );
-}
-
-//Search
-
-export function searchData() {
-  return fetch(`${BASE_PATH}search/company?api_key=${API_KEY}`).then((res) =>
     res.json()
   );
 }
