@@ -56,6 +56,7 @@ const Search = styled.form`
   display: flex;
   align-items: center;
   position: relative;
+  background-color: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
 
   &:hover {
     cursor: pointer;
@@ -106,7 +107,7 @@ const logoVariants = {
 
 const navVariants = {
   top: {
-    backgroundColor: "rgba(0,0,0,0)",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
   scroll: {
     backgroundColor: "rgba(0,0,0,1)",
@@ -155,6 +156,7 @@ function Header() {
         navAnimation.start("top");
       }
     });
+    console.log(navAnimation);
   }, [scrollY, navAnimation]);
 
   const { register, handleSubmit } = useForm<IForm>();

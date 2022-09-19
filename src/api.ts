@@ -38,6 +38,40 @@ export interface ILatest {
     }
   ];
 }
+export interface ITopMovie {
+  page: number;
+  results: [
+    {
+      poster_path: string;
+      adult: boolean;
+      overview: string;
+      release_date: string;
+
+      id: number;
+      original_title: string;
+      title: string;
+      backdrop_path: string;
+      popularity: number;
+    }
+  ];
+}
+export interface IUpMovie {
+  page: number;
+  results: [
+    {
+      poster_path: string;
+      adult: boolean;
+      overview: string;
+      release_date: string;
+
+      id: number;
+      original_title: string;
+      title: string;
+      backdrop_path: string;
+      popularity: number;
+    }
+  ];
+}
 
 //Tv
 
@@ -75,6 +109,18 @@ export interface ILatestTv {
   ];
   status: string;
   type: string;
+}
+
+//Search
+export interface ISearch {
+  page: number;
+  results: [
+    {
+      id: number;
+      logo_path: string;
+      name: string;
+    }
+  ];
 }
 
 //Movies
@@ -121,6 +167,14 @@ export function getPopularTv() {
 
 export function getTopRatedTv() {
   return fetch(`${BASE_PATH}tv/top_rated?api_key=${API_KEY}`).then((res) =>
+    res.json()
+  );
+}
+
+//Search
+
+export function searchData() {
+  return fetch(`${BASE_PATH}search/company?api_key=${API_KEY}`).then((res) =>
     res.json()
   );
 }

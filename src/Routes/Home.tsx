@@ -1,7 +1,7 @@
 import { motion, AnimatePresence, useViewportScroll } from "framer-motion";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { useMatch, PathMatch, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   getLatestMovies,
@@ -10,9 +10,11 @@ import {
   getUpcomingMovies,
   IGetMoviesResult,
   ILatest,
+  ITopMovie,
+  IUpMovie,
 } from "../api";
 import { makeImagePath } from "../utilities";
-import CardMovie from "./CardMovie";
+
 import Slider from "./Slider";
 
 const Wrapper = styled.div`
@@ -26,7 +28,7 @@ const Loader = styled.div`
   align-items: center;
 `;
 const Banner = styled.div<{ bgphoto: string }>`
-  height: 100vh;
+  height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -46,27 +48,6 @@ const Overview = styled.p`
   width: 50%;
 `;
 
-const Overlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-`;
-
-const BigMovie = styled(motion.div)`
-  position: absolute;
-  width: 40vw;
-  height: 80vh;
-  border-radius: 15px;
-  overflow: hidden;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  background-color: ${(props) => props.theme.black.lighter};
-`;
-
 //slider
 
 function Home() {
@@ -75,37 +56,28 @@ function Home() {
     getMovies
   );
   const { data: latestData, isLoading: latestIsLoading } = useQuery<ILatest>(
-    ["latestMovie", "latestMovie"],
+    ["latest", "latestMovie"],
     getLatestMovies
   );
   const { data: topRatedData, isLoading: topRatedIsLoading } =
-    useQuery<ILatest>(["topRatedMovie", "topRatedMovie"], getTopRatedMovies);
+    useQuery<ITopMovie>(
+      ["topRated", "topRatedMovie"], //
+      getTopRatedMovies
+    );
   const { data: upComingData, isLoading: upComingIsLoading } =
-    useQuery<ILatest>(["upComingMovie", "upComingMovie"], getUpcomingMovies);
-  console.log(latestData);
-
-  const { scrollY } = useViewportScroll();
-  const bigMovieMatch: PathMatch<string> | null = useMatch("/movies/:movieId");
-
-  const navigate = useNavigate();
-
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
-  };
-
-  const onOverlayClick = () => navigate(`/`);
-
-  const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    nowData?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
+    useQuery<IUpMovie>(
+      ["upComing", "upComingMovie"], //
+      getUpcomingMovies
     );
 
-  console.log(clickedMovie);
+  const { scrollY } = useViewportScroll();
 
+  const navigate = useNavigate();
+  const loading =
+    nowIsLoading || latestIsLoading || topRatedIsLoading || upComingIsLoading;
   return (
     <Wrapper>
-      {nowIsLoading ? (
+      {loading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
@@ -116,28 +88,25 @@ function Home() {
             <Overview>{nowData?.results[0].overview}</Overview>
           </Banner>
           {/* Slider  */}
-          <Slider data={nowData} />
-          <AnimatePresence>
-            {bigMovieMatch ? (
-              <>
-                <Overlay
-                  onClick={onOverlayClick}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-                <BigMovie
-                  //card Component로 변경하기
-                  layoutId={bigMovieMatch.params.movieId}
-                  style={{
-                    top: scrollY.get() + 100,
-                  }}
-                >
-                  {/* Detail Card  */}
-                  {clickedMovie && <CardMovie movie={clickedMovie} />}
-                </BigMovie>
-              </>
-            ) : null}
-          </AnimatePresence>
+
+          <Slider
+            data={nowData}
+            dataType="now"
+            title={"Now Playing Movies"}
+            path="movies"
+          />
+          <Slider
+            data={topRatedData}
+            dataType="top"
+            title={"Top Rated Movies"}
+            path="movies"
+          />
+          <Slider
+            data={upComingData}
+            dataType="up"
+            title={"Upcoming Movies"}
+            path="movies"
+          />
         </>
       )}
     </Wrapper>
