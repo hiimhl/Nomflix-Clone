@@ -8,6 +8,9 @@ interface IMovies {
   poster_path: string;
   title: string;
   overview: string;
+  vote_average: number;
+  release_date: string;
+  genre_ids: [];
 }
 
 export interface IGetMoviesResult {
@@ -19,24 +22,21 @@ export interface IGetMoviesResult {
   results: IMovies[];
   total_pages: number;
   total_results: number;
+  vote_average: number;
+  release_date: string;
+  genre_ids: [];
 }
 
 export interface ILatest {
-  page: number;
-  results: [
-    {
-      poster_path: string;
-      adult: boolean;
-      overview: string;
-      release_date: string;
-
-      id: number;
-      original_title: string;
-      title: string;
-      backdrop_path: string;
-      popularity: number;
-    }
-  ];
+  backdrop_path: string;
+  id: number;
+  overview: string;
+  poster_path: string;
+  title: string;
+  video: string;
+  vote_average: number;
+  release_date: string;
+  genre_ids: [];
 }
 export interface ITopMovie {
   page: number;
@@ -45,13 +45,15 @@ export interface ITopMovie {
       poster_path: string;
       adult: boolean;
       overview: string;
-      release_date: string;
 
       id: number;
       original_title: string;
       title: string;
       backdrop_path: string;
       popularity: number;
+      vote_average: number;
+      release_date: string;
+      genre_ids: [];
     }
   ];
 }
@@ -69,6 +71,8 @@ export interface IUpMovie {
       title: string;
       backdrop_path: string;
       popularity: number;
+      vote_average: number;
+      genre_ids: [];
     }
   ];
 }
@@ -86,6 +90,9 @@ export interface IAiringTv {
       overview: string;
       first_air_date: string;
       name: string;
+      vote_average: number;
+      release_date: string;
+      genre_ids: [];
     }
   ];
 }
@@ -94,10 +101,14 @@ export interface ILatestTv {
   first_air_date: string;
   homepage: string;
   id: number;
-
+  poster_path: string;
   last_air_date: string;
   name: string;
-
+  vote_average: number;
+  release_date: string;
+  genre_ids: [];
+  title: string;
+  overview: string;
   seasons: [
     {
       air_date: string;
@@ -109,6 +120,15 @@ export interface ILatestTv {
   ];
   status: string;
   type: string;
+}
+
+export interface IGenre {
+  genres: [
+    {
+      id: number | any;
+      name: string;
+    }
+  ];
 }
 
 //Movies
@@ -158,3 +178,11 @@ export function getTopRatedTv() {
     res.json()
   );
 }
+
+export function getGenre() {
+  return fetch(`${BASE_PATH}genre/movie/list?api_key=${API_KEY}`).then((res) =>
+    res.json()
+  );
+}
+
+//

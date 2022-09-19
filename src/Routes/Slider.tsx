@@ -8,22 +8,32 @@ import CardMovie from "./CardMovie";
 
 //Style
 
+const Wrapper = styled.div``;
 const SliderWrapper = styled.div`
-  max-height: 400px;
+  height: 600px;
   margin-bottom: 50px;
+
+  Button:first-child {
+    left: 30px;
+  }
+  Button:last-child {
+    right: 30px;
+  }
 `;
 
 const Title = styled.h3`
   font-size: 30px;
   color: ${(props) => props.theme.white};
+  margin-bottom: 40px;
+  margin-left: 50px;
 `;
 
 const Row = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
-  /* position: absolute; */
-  margin: 0 auto;
+  gap: 10px;
+  position: absolute;
+  margin-left: 5%;
   width: 90%;
 `;
 const Box = styled(motion.div)<{ bgphoto: string }>`
@@ -32,7 +42,7 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
   background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
-  height: 200px;
+  height: 400px;
   font-size: 64px;
   cursor: pointer;
 
@@ -77,12 +87,28 @@ const BigMovie = styled(motion.div)`
   left: 0;
   right: 0;
   margin: 0 auto;
-  background-color: ${(props) => props.theme.black.lighter};
+  background-color: black;
+  -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
+  box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
 `;
 
 const Button = styled.button`
   cursor: pointer;
+  position: absolute;
+  margin-top: 100px;
+  background-color: transparent;
+  border-radius: 3px;
+  border: none;
+  padding: 15px 5px;
+  color: white;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
 `;
+
 //Variants
 
 const rowVariants = {
@@ -123,19 +149,21 @@ interface IData {
   title: string;
   dataType: string;
   path: string;
+  tv?: string;
 }
 
-function Slider({ data, title, dataType, path }: IData) {
+function Slider({ data, title, dataType, path, tv }: IData) {
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
   const [leaving, setLeaving] = useState(false);
+  const [goLeft, setGoLeft] = useState(false);
 
   // const DATA_TYPE= movie.id
   //Router Match
   const bigMovieMatch: PathMatch<string> | null = useMatch(
-    `/movies/${dataType}/:movieId`
+    `/${path}/${dataType}/:movieId`
   );
-  const onOverlayClick = () => navigate(`/`);
+  const onOverlayClick = () => navigate(`/${tv}`);
   const { scrollY } = useViewportScroll();
 
   const increaseIndex = () => {
@@ -148,6 +176,7 @@ function Slider({ data, title, dataType, path }: IData) {
         const totalMovies = data?.results.length;
         const maxIndex = Math.floor(totalMovies / offset) - 1;
         setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+        setGoLeft(false);
       }
     }
   };
@@ -161,6 +190,7 @@ function Slider({ data, title, dataType, path }: IData) {
         const totalMovies = data?.results.length; //19
         const maxIndex = Math.floor(totalMovies / offset) - 1; //3
         setIndex((prev) => (prev === maxIndex ? prev - 1 : 0));
+        setGoLeft(true);
         //
       }
     }
@@ -176,21 +206,21 @@ function Slider({ data, title, dataType, path }: IData) {
   //AnimatePresence의 onExitComplete는 exit가 완료된 후 실행됨.
 
   const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${dataType}/${movieId}`);
+    navigate(`/${path}/${dataType}/${movieId}`);
   };
 
   return (
     <>
-      <SliderWrapper>
+      <Wrapper>
         <Title>{title}</Title>
         <SliderWrapper>
           <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-            <Button onClick={decreaseIndex}>di</Button>
+            <Button onClick={decreaseIndex}>&lt;</Button>
             <Row
               variants={rowVariants}
-              initial="hidden"
+              initial={goLeft ? "exit" : "hidden"}
               animate="visible"
-              exit="exit"
+              exit={goLeft ? "hidden" : "exit"}
               transition={{ type: "tween", duration: 1 }}
               key={index}
             >
@@ -206,7 +236,7 @@ function Slider({ data, title, dataType, path }: IData) {
                     initial="normal"
                     transition={{ type: "tween" }}
                     onClick={() => onBoxClicked(movie.id)}
-                    bgphoto={makeImagePath(movie.backdrop_path, "w500")}
+                    bgphoto={makeImagePath(movie.poster_path, "w500")}
                   >
                     <Info variants={infoVariants}>
                       <h4>{movie.title}</h4>
@@ -214,10 +244,10 @@ function Slider({ data, title, dataType, path }: IData) {
                   </Box>
                 ))}
             </Row>
-            <Button onClick={increaseIndex}>in</Button>
+            <Button onClick={increaseIndex}>&gt;</Button>
           </AnimatePresence>
         </SliderWrapper>
-      </SliderWrapper>
+      </Wrapper>
       <AnimatePresence>
         {bigMovieMatch ? (
           <>

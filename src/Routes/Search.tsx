@@ -51,7 +51,6 @@ const Overlay = styled(motion.div)`
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
 `;
 
 const BigMovie = styled(motion.div)`
@@ -64,6 +63,9 @@ const BigMovie = styled(motion.div)`
   right: 0;
   margin: 0 auto;
   background-color: ${(props) => props.theme.black.lighter};
+  background-color: black;
+  -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
+  box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
 `;
 
 // Interface
@@ -109,7 +111,6 @@ function Search() {
   const validData = data?.results.filter((data) => data.poster_path);
   const { scrollY } = useViewportScroll();
 
-  console.log(movieMatch);
   const clickedMovie =
     movieMatch?.params.movieId &&
     data?.results.find(
