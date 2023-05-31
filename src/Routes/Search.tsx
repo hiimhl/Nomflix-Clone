@@ -1,5 +1,5 @@
-import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
-import React from "react";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
 import {
   useLocation,
@@ -10,6 +10,7 @@ import {
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
 import CardMovie from "./CardMovie";
+import { IMovies } from "../api";
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,7 +63,7 @@ const BigMovie = styled(motion.div)`
   left: 0;
   right: 0;
   margin: 0 auto;
-  background-color: ${(props) => props.theme.black.lighter};
+  /* background-color: ${(props) => props.theme.black.lighter}; */
   background-color: black;
   -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
   box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
@@ -90,6 +91,7 @@ interface ISearch {
 function Search() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { scrollY } = useScroll();
 
   //input창에 입력된 keyword값을 알 수 있다.
   const keyword = new URLSearchParams(location.search).get("keyword");
@@ -107,15 +109,11 @@ function Search() {
     ["search", "searchData"],
     searchData
   );
-
-  const validData = data?.results.filter((data) => data.poster_path);
-  const { scrollY } = useViewportScroll();
-
   const clickedMovie =
     movieMatch?.params.movieId &&
-    data?.results.find(
-      (movie: any) => movie.id + "" === movieMatch.params.movieId
-    );
+    data?.results.find((movie) => movie.id + "" === movieMatch.params.movieId);
+  const validData = data?.results.filter((data) => data.poster_path);
+
   const onBoxClicked = (movieId: number) => {
     navigate(`/search/${movieId}`);
   };
@@ -165,10 +163,3 @@ function Search() {
   );
 }
 export default Search;
-
-// /home 페이지에
-// /(home) 페이지에 Latest movies, Top Rated Movies 그리고 Upcoming Movies의 슬라이더를 추가해주세요.
-// /tv 페이지에 Latest Shows, Airing Today, Popular, Top Rated의 슬라이더를 추가해주세요.
-// /search 페이지에 검색한 movie와 tv의 결과가 담긴 슬라이더를 추가해주세요.
-// /movie/:id 페이지를 더욱 예쁘게 꾸며보세요.
-// /tv/:id 페이지를 추가해주세요.

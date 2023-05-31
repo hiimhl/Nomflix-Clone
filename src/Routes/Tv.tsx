@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import React, { useState } from "react";
 
 import { useQuery } from "react-query";
@@ -141,7 +141,7 @@ function Tv() {
   const bigMovieMatch: PathMatch<string> | null = useMatch(`/tv/:movieId`);
 
   const onOverlayClick = () => navigate(`/tv`);
-  const { scrollY } = useViewportScroll();
+  const { scrollY } = useScroll();
 
   const { data: airingData, isLoading: airingIsLoading } = useQuery<IAiringTv>(
     ["airing", "airingTv"],

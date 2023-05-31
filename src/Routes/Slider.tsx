@@ -1,10 +1,12 @@
-import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import React, { useState } from "react";
 
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
 import CardMovie from "./CardMovie";
+import { v4 as uuidv4 } from "uuid";
+import { IMovies } from "../api";
 
 //Style
 
@@ -158,13 +160,14 @@ function Slider({ data, title, dataType, path, tv }: IData) {
   const [leaving, setLeaving] = useState(false);
   const [goLeft, setGoLeft] = useState(false);
 
+  const myUuid = uuidv4();
   // const DATA_TYPE= movie.id
   //Router Match
   const bigMovieMatch: PathMatch<string> | null = useMatch(
     `/${path}/${dataType}/:movieId`
   );
   const onOverlayClick = () => navigate(`/${tv}`);
-  const { scrollY } = useViewportScroll();
+  const { scrollY } = useScroll();
 
   const increaseIndex = () => {
     if (data) {
@@ -199,7 +202,7 @@ function Slider({ data, title, dataType, path, tv }: IData) {
   const clickedMovie =
     bigMovieMatch?.params.movieId &&
     data?.results.find(
-      (movie: any) => movie.id + "" === bigMovieMatch.params.movieId
+      (movie: IMovies) => movie.id + "" === bigMovieMatch.params.movieId
     );
 
   const toggleLeaving = () => setLeaving((prev) => !prev);
@@ -227,7 +230,7 @@ function Slider({ data, title, dataType, path, tv }: IData) {
               {data?.results
                 .slice(1)
                 .slice(offset * index, offset * index + offset)
-                .map((movie: any) => (
+                .map((movie: IMovies) => (
                   <Box
                     key={movie.id}
                     layoutId={`/${path}/${dataType}/${movie.id}`}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { motion, useAnimation, useViewportScroll } from "framer-motion";
+import { motion, useAnimation, useScroll } from "framer-motion";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
@@ -125,6 +125,8 @@ interface IForm {
 
 function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const { register, handleSubmit, watch, reset } = useForm<IForm>();
+
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("tv");
 
@@ -132,23 +134,7 @@ function Header() {
 
   const InputAnimation = useAnimation();
   const navAnimation = useAnimation();
-  const { scrollY } = useViewportScroll();
-
-  const onToggleSearch = () => {
-    if (searchOpen) {
-      //trigger th close animation
-      //애니메이션들을 동시에 실행시키고 싶을 때 사용.
-      InputAnimation.start({
-        scaleX: 0,
-      });
-    } else {
-      //trigger th open animation
-      InputAnimation.start({
-        scaleX: 1,
-      });
-    }
-    setSearchOpen((prev) => !prev);
-  };
+  const { scrollY } = useScroll();
 
   // scroll을 하면 nav의 상태를 변화시킴
   useEffect(() => {
@@ -161,14 +147,32 @@ function Header() {
         navAnimation.start("top");
       }
     });
-    console.log(navAnimation);
   }, [scrollY, navAnimation]);
 
-  const { register, handleSubmit } = useForm<IForm>();
-  const onValid = (data: IForm) => {
+  const onSubmitSearch = (data: IForm) => {
     navigate(`/search?keyword=${data.keyword}`);
+    reset();
   };
 
+  const onToggleSearch = () => {
+    if (searchOpen) {
+      //trigger th close animation
+      //애니메이션들을 동시에 실행시키고 싶을 때 사용.
+      InputAnimation.start({
+        scaleX: 0,
+      });
+      if (watch("keyword").length > 0) {
+        onSubmitSearch(watch());
+        reset();
+      }
+    } else {
+      //trigger th open animation
+      InputAnimation.start({
+        scaleX: 1,
+      });
+    }
+    setSearchOpen((prev) => !prev);
+  };
   return (
     <Nav animate={navAnimation} variants={navVariants} initial={"top"}>
       <Col>
@@ -196,7 +200,7 @@ function Header() {
         </Items>
       </Col>
       <Col>
-        <Search onSubmit={handleSubmit(onValid)}>
+        <Search onSubmit={handleSubmit(onSubmitSearch)}>
           <motion.svg
             animate={{ x: searchOpen ? -145 : 0 }}
             fill="currentColor"

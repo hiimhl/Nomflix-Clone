@@ -1,7 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
+import { IAiringTv, ILatest, ILatestTv, IMovies } from "../api";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -39,25 +39,29 @@ const Overview = styled.span`
   padding-top: 10px;
 `;
 
-function CardMovie({ movie }: any) {
-  const navigate = useNavigate();
-  const onOverlayClick = () => navigate(`/`);
+interface IProps {
+  movie: IMovies | any;
+}
 
+function CardMovie({ movie }: IProps) {
+  console.log(movie);
+
+  const imgUrl = movie?.backdrop_path;
   return (
     <Wrapper>
       <Cover
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0),rgba(0,0,0,1)), url(${makeImagePath(
-            movie.backdrop_path
+            imgUrl!
           )})`,
         }}
       />
       <Content>
-        <Title>{movie.title}</Title>
-        <p>개봉일 : {movie.release_date}</p>
-        <p>평점 : ⭐{movie.vote_average}</p>
+        <Title>{movie?.title}</Title>
+        <p>개봉일 : {movie?.release_date}</p>
+        <p>평점 : ⭐{movie?.vote_average}</p>
         <p>줄거리 :</p>
-        <Overview>{movie.overview.slice(0, 700)}</Overview>
+        <Overview>{movie?.overview.slice(0, 700)}</Overview>
       </Content>
     </Wrapper>
   );
