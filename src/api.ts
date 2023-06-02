@@ -191,4 +191,9 @@ export function getGenre() {
   );
 }
 
-//
+// search
+export const searchData = (keyword: string | null) => {
+  return fetch(
+    `${BASE_PATH}/search/multi?api_key=a6266e583d888756aced9d1c2ad96864&language=en-US&query=${keyword}&page=1&include_adult=false`
+  ).then((res) => res.json());
+};

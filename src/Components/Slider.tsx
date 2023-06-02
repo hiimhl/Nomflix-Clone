@@ -1,18 +1,20 @@
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
 import CardMovie from "./CardMovie";
-import { v4 as uuidv4 } from "uuid";
 import { IMovies } from "../api";
-
+import { BigMovie, Overlay } from "./UI/Overlay";
 //Style
 
-const Wrapper = styled.div``;
+const Wrapper = styled.section`
+  width: 100vw;
+  overflow-x: hidden;
+`;
 const SliderWrapper = styled.div`
-  height: 600px;
+  height: 30vw;
   margin-bottom: 50px;
 
   Button:first-child {
@@ -28,25 +30,33 @@ const Title = styled.h3`
   color: ${(props) => props.theme.white};
   margin-bottom: 40px;
   margin-left: 50px;
+  font-weight: 600;
+  /* Tablet */
+  @media screen and (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 
-const Row = styled(motion.div)`
+const Row = styled(motion.ul)`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   position: absolute;
   margin-left: 5%;
   width: 90%;
+  overflow: hidden;
 `;
-const Box = styled(motion.div)<{ bgphoto: string }>`
+const Item = styled(motion.li)<{ bgphoto: string }>`
   //props를 작성할 때 괄호가 있다면 div 뒤에 타입을 작성.
   background-color: white;
   background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
-  height: 400px;
+  height: 23vw;
+  max-height: 430px;
   font-size: 64px;
   cursor: pointer;
+  border-radius: 7px;
 
   &:first-child {
     //처음과 마지막 요소가 화면밖으로 나가는걸 방지.
@@ -58,8 +68,8 @@ const Box = styled(motion.div)<{ bgphoto: string }>`
 `;
 
 const Info = styled(motion.div)`
-  padding: 10px;
-  background-color: ${(props) => props.theme.black.lighter};
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
   position: absolute;
   width: 100%;
@@ -68,30 +78,8 @@ const Info = styled(motion.div)`
   h4 {
     text-align: center;
     font-size: 18px;
+    font-weight: 500;
   }
-`;
-
-const Overlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-`;
-
-const BigMovie = styled(motion.div)`
-  position: absolute;
-  width: 40vw;
-  height: 80vh;
-  border-radius: 15px;
-  overflow: hidden;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  background-color: black;
-  -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
-  box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
 `;
 
 const Button = styled.button`
@@ -102,7 +90,7 @@ const Button = styled.button`
   border-radius: 3px;
   border: none;
   padding: 15px 5px;
-  color: white;
+  color: ${(props) => props.theme.white.lighter};
   font-size: 20px;
   transition: background-color 0.3s ease;
 
@@ -123,8 +111,7 @@ const rowVariants = {
 const boxVariants = {
   normal: { scale: 1 },
   hover: {
-    scale: 1.3,
-    y: -80,
+    scale: 1.1,
     transition: {
       delay: 0.3,
       duration: 0.3,
@@ -153,22 +140,27 @@ interface IData {
   path: string;
   tv?: string;
 }
+export const myUUID = uuidv4();
 
 function Slider({ data, title, dataType, path, tv }: IData) {
   const [index, setIndex] = useState(0);
+  const [movieList, setMovieList] = useState<IMovies[] | null>(null);
   const navigate = useNavigate();
   const [leaving, setLeaving] = useState(false);
   const [goLeft, setGoLeft] = useState(false);
 
-  const myUuid = uuidv4();
-  // const DATA_TYPE= movie.id
   //Router Match
   const bigMovieMatch: PathMatch<string> | null = useMatch(
     `/${path}/${dataType}/:movieId`
   );
+
   const onOverlayClick = () => navigate(`/${tv}`);
   const { scrollY } = useScroll();
 
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+  //AnimatePresence의 onExitComplete는 exit가 완료된 후 실행됨.
+
+  // Contrl slider items
   const increaseIndex = () => {
     if (data) {
       if (leaving) {
@@ -205,12 +197,18 @@ function Slider({ data, title, dataType, path, tv }: IData) {
       (movie: IMovies) => movie.id + "" === bigMovieMatch.params.movieId
     );
 
-  const toggleLeaving = () => setLeaving((prev) => !prev);
-  //AnimatePresence의 onExitComplete는 exit가 완료된 후 실행됨.
-
   const onBoxClicked = (movieId: number) => {
     navigate(`/${path}/${dataType}/${movieId}`);
   };
+
+  useEffect(() => {
+    const sliceList = data?.results.slice(1);
+    const sliceLsitSix = sliceList.slice(
+      offset * index,
+      offset * index + offset
+    );
+    setMovieList(sliceLsitSix);
+  }, [movieList, index, data]);
 
   return (
     <>
@@ -227,24 +225,21 @@ function Slider({ data, title, dataType, path, tv }: IData) {
               transition={{ type: "tween", duration: 1 }}
               key={index}
             >
-              {data?.results
-                .slice(1)
-                .slice(offset * index, offset * index + offset)
-                .map((movie: IMovies) => (
-                  <Box
-                    key={movie.id}
-                    layoutId={`/${path}/${dataType}/${movie.id}`}
+              {movieList &&
+                movieList?.map((movie) => (
+                  <Item
+                    key={`item-${movie.id}`}
                     variants={boxVariants}
                     whileHover="hover"
                     initial="normal"
-                    transition={{ type: "tween" }}
                     onClick={() => onBoxClicked(movie.id)}
+                    transition={{ type: "tween" }}
                     bgphoto={makeImagePath(movie.poster_path, "w500")}
                   >
                     <Info variants={infoVariants}>
                       <h4>{movie.title}</h4>
                     </Info>
-                  </Box>
+                  </Item>
                 ))}
             </Row>
             <Button onClick={increaseIndex}>&gt;</Button>
@@ -252,25 +247,21 @@ function Slider({ data, title, dataType, path, tv }: IData) {
         </SliderWrapper>
       </Wrapper>
       <AnimatePresence>
-        {bigMovieMatch ? (
+        {bigMovieMatch && (
           <>
-            <Overlay
-              onClick={onOverlayClick}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
+            <Overlay onClick={onOverlayClick} />
             <BigMovie
               //card Component로 변경하기
-              layoutId={bigMovieMatch.pathname}
-              style={{
-                top: scrollY.get() + 100,
-              }}
+              layoutId={bigMovieMatch?.params.dataId}
+              scroll={scrollY.get() + 100}
             >
               {/* Detail Card  */}
-              {clickedMovie && <CardMovie movie={clickedMovie} />}
+              {clickedMovie && (
+                <CardMovie movie={clickedMovie} closeOverlay={onOverlayClick} />
+              )}
             </BigMovie>
           </>
-        ) : null}
+        )}
       </AnimatePresence>
     </>
   );

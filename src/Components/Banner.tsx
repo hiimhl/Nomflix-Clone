@@ -1,72 +1,96 @@
 import styled from "styled-components";
-import { IGetMoviesResult, IMovies, IUpMovie } from "../api";
+import { IMovies } from "../api";
 import { makeImagePath } from "../utilities";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
-import { motion, useScroll } from "framer-motion";
-import CardMovie from "../Routes/CardMovie";
+import { useScroll } from "framer-motion";
+import CardMovie from "./CardMovie";
+import { BigMovie, Overlay } from "./UI/Overlay";
 
 const Wrapper = styled.div<{ bgphoto: string }>`
-  height: 80vh;
+  height: auto;
+  min-height: 45vw;
+  width: 100vw;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* padding: 60px; */
 
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)),
     url(${(props) => props.bgphoto});
   background-size: cover;
 
-  button {
-    cursor: pointer;
-    border: 1px solid ${(props) => props.theme.white.lighter};
-    color: ${(props) => props.theme.white.lighter};
-    background-color: rgba(255, 255, 255, 0.05);
-    margin-top: 25px;
-    border-radius: 10px;
-    width: 130px;
+  h2 {
+    font-size: 60px;
     margin-left: 60px;
-    height: 40px;
-    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
 
-    &:hover {
-      background-color: transparent;
+  p {
+    margin-left: 60px;
+    font-size: 26px;
+    width: 50%;
+  }
+
+  @media screen and (max-width: 1440px) {
+    h2 {
+      font-size: 34px;
+    }
+    p {
+      font-size: 16px;
     }
   }
-`;
-const Title = styled.h2`
-  font-size: 68px;
-  margin-left: 60px;
-  margin-bottom: 20px;
+  /* Tablet */
+  @media screen and (max-width: 768px) {
+    min-height: 65vw;
+    h2 {
+      font-size: 24px;
+    }
+    p {
+      font-size: 14px;
+    }
+  }
+  @media screen and (max-width: 600px) {
+    min-height: 65vw;
+    h2 {
+      font-size: 20px;
+      width: 50%;
+    }
+    p {
+      display: none;
+    }
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 430px) {
+    min-height: 120vw;
+  }
 `;
 
-const Overview = styled.p`
+const DetailBtn = styled.button`
+  cursor: pointer;
+  border: 1px solid ${(props) => props.theme.white.lighter};
+  color: ${(props) => props.theme.white.lighter};
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-top: 25px;
+  border-radius: 10px;
+  width: 130px;
   margin-left: 60px;
-  font-size: 30px;
-  width: 50%;
-`;
-const Overlay = styled(motion.div)`
-  padding: 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
+  height: 40px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: transparent;
+  }
+
+  /* Tablet */
+  @media screen and (max-width: 768px) {
+    height: 30px;
+    width: 100px;
+    font-size: 12px;
+  }
 `;
 
-const BigMovie = styled(motion.div)`
-  position: absolute;
-  width: 40vw;
-  height: 80vh;
-  border-radius: 15px;
-  overflow: hidden;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  background-color: black;
-  -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
-  box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
-`;
 interface IProps {
   data: IMovies | undefined;
 }
@@ -85,25 +109,19 @@ function Banner({ data }: IProps) {
   const onOverlayClick = () => navigate(`/`);
   return (
     <Wrapper bgphoto={makeImagePath(data?.backdrop_path || "")}>
-      <Title>{data?.title}</Title>
-      <Overview>{data?.overview}</Overview>
-      <button onClick={() => onBoxClicked(data?.id ?? 0)}>자세히 보기</button>
-
+      <h2>{data?.title}</h2>
+      <p>{data?.overview}</p>
+      <DetailBtn onClick={() => onBoxClicked(data?.id ?? 0)}>
+        자세히 보기
+      </DetailBtn>
       {clickDetail ? (
         <>
-          <Overlay
-            onClick={onOverlayClick}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
+          <Overlay onClick={onOverlayClick} />
           <BigMovie
-            //card Component로 변경하기
             layoutId={clickDetail.params.movieId}
-            style={{
-              top: scrollY.get() + 100,
-            }}
+            scroll={scrollY.get() + 100}
           >
-            {data && <CardMovie movie={data} />}
+            {data && <CardMovie movie={data} closeOverlay={onOverlayClick} />}
           </BigMovie>
         </>
       ) : null}

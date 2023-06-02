@@ -10,15 +10,15 @@ import {
   ITopMovie,
   IUpMovie,
 } from "../api";
-import Slider from "./Slider";
+import Slider from "../Components/Slider";
 import Banner from "../Components/Banner";
 
 // Style
 const Wrapper = styled.div`
-  background-color: black;
-  padding-bottom: 200px;
-  height: 300vh;
-  width: 100%;
+  background-color: ${(props) => props.theme.black.veryDark};
+  padding-bottom: 50px;
+  height: auto;
+  width: 100vw;
 `;
 const Loader = styled.div`
   height: 20vh;
@@ -67,7 +67,6 @@ function Home() {
             title={"Now Playing Movies"}
             path="movies"
           />
-
           <Slider
             data={topRatedData}
             dataType="top"

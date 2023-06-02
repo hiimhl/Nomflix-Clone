@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import {
   useLocation,
@@ -9,8 +9,9 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
-import CardMovie from "./CardMovie";
-import { IMovies } from "../api";
+import CardMovie from "../Components/CardMovie";
+import { BigMovie, Overlay } from "../Components/UI/Overlay";
+import { IMovies, searchData } from "../api";
 
 const Wrapper = styled.div`
   display: flex;
@@ -25,11 +26,11 @@ const Title = styled.h2`
 `;
 const ItemList = styled.ul`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   width: 100%;
-  height: 80vh;
+  height: auto;
   list-style: none;
-  gap: 25px;
+  gap: 45px;
   padding: 0 50px;
 `;
 const ItemCard = styled(motion.li)<{ bgImage: string }>`
@@ -37,36 +38,13 @@ const ItemCard = styled(motion.li)<{ bgImage: string }>`
   background-image: url(${(props) => props.bgImage});
   background-size: cover;
   background-position: center;
-  height: 450px;
+  height: 25vw;
   margin-bottom: 30px;
   color: black;
 
   p {
     font-size: 20px;
   }
-`;
-
-const Overlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-`;
-
-const BigMovie = styled(motion.div)`
-  position: absolute;
-  width: 40vw;
-  height: 80vh;
-  border-radius: 15px;
-  overflow: hidden;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  /* background-color: ${(props) => props.theme.black.lighter}; */
-  background-color: black;
-  -webkit-box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
-  box-shadow: 4px 5px 21px 5px rgba(119, 119, 119, 0.76);
 `;
 
 // Interface
@@ -99,24 +77,20 @@ function Search() {
   //
   const movieMatch: PathMatch<string> | null = useMatch(`/search/:movieId`);
 
-  const searchData = () => {
-    return fetch(
-      `https://api.themoviedb.org/3/search/multi?api_key=a6266e583d888756aced9d1c2ad96864&language=en-US&query=${keyword}&page=1&include_adult=false`
-    ).then((res) => res.json());
-  };
-
-  const { data, isLoading } = useQuery<ISearch>(
-    ["search", "searchData"],
-    searchData
+  const { data, isLoading } = useQuery<ISearch>(["search", "searchData"], () =>
+    searchData(keyword)
   );
-  const clickedMovie =
-    movieMatch?.params.movieId &&
-    data?.results.find((movie) => movie.id + "" === movieMatch.params.movieId);
+
+  const clickedMovie = movieMatch?.params.movieId
+    ? data?.results.find((movie) => movie.id + "" === movieMatch.params.movieId)
+    : null;
   const validData = data?.results.filter((data) => data.poster_path);
 
   const onBoxClicked = (movieId: number) => {
     navigate(`/search/${movieId}`);
   };
+  const onGoBack = () => navigate(-1);
+
   return (
     <Wrapper>
       {isLoading ? (
@@ -126,36 +100,27 @@ function Search() {
           <Title>" {keyword} " 검색 결과 : </Title>
           <ItemList>
             {validData?.map((data) => (
-              <>
-                <ItemCard
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  key={data.id}
-                  layoutId={`/search/${data.id}`}
-                  onClick={() => onBoxClicked(data.id)}
-                  bgImage={makeImagePath(data.poster_path, "w500")}
-                />
-                {movieMatch ? (
-                  <AnimatePresence>
-                    <Overlay
-                      onClick={() => navigate(-1)}
-                      animate={{ opacity: 0.5 }}
-                      exit={{ opacity: 0 }}
-                    />
-                    <BigMovie
-                      //card Component로 변경하기
-                      layoutId={movieMatch.pathname}
-                      style={{
-                        top: scrollY.get() + 100,
-                      }}
-                    >
-                      {/* Detail Card  */}
-                      {clickedMovie && <CardMovie movie={clickedMovie} />}
-                    </BigMovie>
-                  </AnimatePresence>
-                ) : null}
-              </>
+              <ItemCard
+                // key={data.id + "search"}
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                layoutId={`/search/${data.id}`}
+                onClick={() => onBoxClicked(data.id)}
+                bgImage={makeImagePath(data.poster_path, "w500")}
+              />
             ))}
+            {movieMatch && (
+              <AnimatePresence>
+                <Overlay onClick={onGoBack} />
+                <BigMovie
+                  //card Component로 변경하기
+                  layoutId={movieMatch.pathname}
+                  scroll={scrollY.get() + 100}
+                >
+                  <CardMovie movie={clickedMovie} closeOverlay={onGoBack} />
+                </BigMovie>
+              </AnimatePresence>
+            )}
           </ItemList>
         </>
       )}
