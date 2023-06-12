@@ -1,5 +1,4 @@
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import {
   useLocation,
@@ -11,7 +10,7 @@ import styled from "styled-components";
 import { makeImagePath } from "../utilities";
 import CardMovie from "../Components/CardMovie";
 import { BigMovie, Overlay } from "../Components/UI/Overlay";
-import { IMovies, searchData } from "../api";
+import { searchData } from "../api";
 
 const Wrapper = styled.div`
   display: flex;
@@ -101,7 +100,7 @@ function Search() {
           <ItemList>
             {validData?.map((data) => (
               <ItemCard
-                // key={data.id + "search"}
+                key={data.id}
                 initial={{ scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 layoutId={`/search/${data.id}`}

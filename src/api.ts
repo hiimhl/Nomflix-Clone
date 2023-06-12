@@ -51,7 +51,7 @@ export interface ITopMovie {
       poster_path: string;
       adult: boolean;
       overview: string;
-
+      first_air_date: string;
       id: number;
       original_title: string;
       title: string;
@@ -99,40 +99,6 @@ export interface IAiringTv {
       vote_average: number;
       release_date: string;
       genre_ids: [];
-    }
-  ];
-}
-
-export interface ILatestTv {
-  first_air_date: string;
-  homepage: string;
-  id: number;
-  poster_path: string;
-  last_air_date: string;
-  name: string;
-  vote_average: number;
-  release_date: string;
-  genre_ids: [];
-  title: string;
-  overview: string;
-  seasons: [
-    {
-      air_date: string;
-      episode_count: number;
-      id: number;
-      poster_path: null;
-      season_number: number;
-    }
-  ];
-  status: string;
-  type: string;
-}
-
-export interface IGenre {
-  genres: [
-    {
-      id: number | any;
-      name: string;
     }
   ];
 }

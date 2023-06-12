@@ -25,8 +25,6 @@ const Cover = styled.div`
 `;
 
 const Content = styled.div`
-  display: flex;
-  flex-direction: column;
   justify-items: start;
   border-radius: 5px;
   border: 2px solid ${(props) => props.theme.white.darker};
@@ -35,28 +33,34 @@ const Content = styled.div`
   padding: 15px;
   margin: 0 30px;
   margin-top: 10px;
-  div {
-    width: 50px;
-    height: 5px;
-    background-color: ${(props) => props.theme.white.darker};
+
+  overflow-y: scroll;
+  /* WebKit 엔진 브라우저 (Chrome, Safari 등) */
+  ::-webkit-scrollbar {
+    display: none;
   }
 
-  p {
-    margin-bottom: 5px;
-    line-height: 1.7;
-    b {
-      margin-right: 5px;
-      font-weight: 500;
+  /* Firefox 브라우저 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* Content */
+  div {
+    p {
+      margin-bottom: 5px;
+      line-height: 1.7;
+      b {
+        margin-right: 5px;
+        font-weight: 500;
+      }
     }
   }
+
   /* Tablet */
   @media screen and (max-width: 768px) {
     height: auto;
     max-height: 50%;
     overflow-y: scroll;
-  }
-  /* Mobile */
-  @media screen and (max-width: 430px) {
   }
 `;
 const Title = styled.h3`
@@ -65,10 +69,12 @@ const Title = styled.h3`
   font-weight: 500;
   padding-bottom: 15px;
   width: auto;
+  margin-right: 15px;
 `;
 
 const Overview = styled.span`
   color: ${(props) => props.theme.white.lighter};
+  font-size: 18px;
   position: relative;
   width: 90%;
   padding-top: 10px;
@@ -114,22 +120,20 @@ function CardMovie({ movie, closeOverlay }: IProps) {
         }}
       />
       <Content>
-        <Title>{movie?.title}</Title>
-        <p>
-          <b>개봉일 :</b> {movie?.release_date}
-        </p>
-        <p>
-          <b>평점 :</b> ⭐{movie?.vote_average}
-        </p>
-        <p>
-          <b>줄거리 :</b>
-          <br />
-          <Overview>
-            {movie?.overview.length > 700
-              ? movie?.overview.slice(0, 700) + "..."
-              : movie?.overview}
-          </Overview>
-        </p>
+        <Title>{movie?.title || movie?.name}</Title>
+        <div>
+          <p>
+            <b>개봉일 :</b> {movie?.release_date || movie?.first_air_date}
+          </p>
+          <p>
+            <b>평점 :</b> ⭐{movie?.vote_average}
+          </p>
+          <p>
+            <b>줄거리 :</b>
+            <br />
+            <Overview>{movie?.overview}</Overview>
+          </p>
+        </div>
       </Content>
       <CloseBtn onClick={onCloseBtn} style={{ border: "none" }}>
         <svg

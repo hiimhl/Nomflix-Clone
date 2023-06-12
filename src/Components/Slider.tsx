@@ -1,6 +1,5 @@
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { useMatch, useNavigate, PathMatch } from "react-router-dom";
 import styled from "styled-components";
 import { makeImagePath } from "../utilities";
@@ -138,24 +137,24 @@ interface IData {
   title: string;
   dataType: string;
   path: string;
-  tv?: string;
 }
-export const myUUID = uuidv4();
 
-function Slider({ data, title, dataType, path, tv }: IData) {
+function Slider({ data, title, dataType, path }: IData) {
   const [index, setIndex] = useState(0);
-  const [movieList, setMovieList] = useState<IMovies[] | null>(null);
-  const navigate = useNavigate();
+  const [sliderData, setSliderData] = useState([]);
   const [leaving, setLeaving] = useState(false);
   const [goLeft, setGoLeft] = useState(false);
+
+  const { scrollY } = useScroll();
+  const navigate = useNavigate();
 
   //Router Match
   const bigMovieMatch: PathMatch<string> | null = useMatch(
     `/${path}/${dataType}/:movieId`
   );
 
-  const onOverlayClick = () => navigate(`/${tv}`);
-  const { scrollY } = useScroll();
+  const onOverlayClick = () =>
+    path === "tv" ? navigate(`/${path}`) : navigate("/");
 
   const toggleLeaving = () => setLeaving((prev) => !prev);
   //AnimatePresence의 onExitComplete는 exit가 완료된 후 실행됨.
@@ -201,69 +200,69 @@ function Slider({ data, title, dataType, path, tv }: IData) {
     navigate(`/${path}/${dataType}/${movieId}`);
   };
 
+  // Set Slider data
   useEffect(() => {
-    const sliceList = data?.results.slice(1);
-    const sliceLsitSix = sliceList.slice(
-      offset * index,
-      offset * index + offset
-    );
-    setMovieList(sliceLsitSix);
-  }, [movieList, index, data]);
+    const slice = data?.results
+      .slice(1)
+      .slice(offset * index, offset * index + offset);
+    setSliderData(slice);
+  }, [data, index, goLeft]);
 
   return (
-    <>
-      <Wrapper>
-        <Title>{title}</Title>
-        <SliderWrapper>
-          <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-            <Button onClick={decreaseIndex}>&lt;</Button>
-            <Row
-              variants={rowVariants}
-              initial={goLeft ? "exit" : "hidden"}
-              animate="visible"
-              exit={goLeft ? "hidden" : "exit"}
-              transition={{ type: "tween", duration: 1 }}
-              key={index}
-            >
-              {movieList &&
-                movieList?.map((movie) => (
-                  <Item
-                    key={`item-${movie.id}`}
-                    variants={boxVariants}
-                    whileHover="hover"
-                    initial="normal"
-                    onClick={() => onBoxClicked(movie.id)}
-                    transition={{ type: "tween" }}
-                    bgphoto={makeImagePath(movie.poster_path, "w500")}
-                  >
-                    <Info variants={infoVariants}>
-                      <h4>{movie.title}</h4>
-                    </Info>
-                  </Item>
-                ))}
-            </Row>
-            <Button onClick={increaseIndex}>&gt;</Button>
-          </AnimatePresence>
-        </SliderWrapper>
-      </Wrapper>
-      <AnimatePresence>
-        {bigMovieMatch && (
-          <>
-            <Overlay onClick={onOverlayClick} />
-            <BigMovie
-              //card Component로 변경하기
-              layoutId={bigMovieMatch?.params.dataId}
-              scroll={scrollY.get() + 100}
-            >
-              {/* Detail Card  */}
-              {clickedMovie && (
-                <CardMovie movie={clickedMovie} closeOverlay={onOverlayClick} />
-              )}
-            </BigMovie>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+    <Wrapper>
+      <Title>{title}</Title>
+      <SliderWrapper>
+        <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+          <Button key={dataType} onClick={decreaseIndex}>
+            &lt;
+          </Button>
+          <Row
+            variants={rowVariants}
+            initial={goLeft ? "exit" : "hidden"}
+            animate="visible"
+            exit={goLeft ? "hidden" : "exit"}
+            transition={{ type: "tween", duration: 1 }}
+            key={"row" + index}
+          >
+            {sliderData &&
+              sliderData.map((movie: IMovies) => (
+                <Item
+                  key={movie.id}
+                  variants={boxVariants}
+                  whileHover="hover"
+                  initial="normal"
+                  onClick={() => onBoxClicked(movie.id)}
+                  transition={{ type: "tween" }}
+                  bgphoto={makeImagePath(movie.poster_path, "w500")}
+                >
+                  <Info variants={infoVariants}>
+                    <h4>{movie.title}</h4>
+                  </Info>
+                </Item>
+              ))}
+          </Row>
+          <Button key={dataType + "right"} onClick={increaseIndex}>
+            &gt;
+          </Button>
+        </AnimatePresence>
+      </SliderWrapper>
+      {bigMovieMatch && (
+        <AnimatePresence>
+          <Overlay
+            key={bigMovieMatch.pathname + "overlay"}
+            onClick={onOverlayClick}
+          />
+          <BigMovie
+            layoutId={bigMovieMatch.pathname}
+            scroll={scrollY.get() + 100}
+          >
+            {clickedMovie && (
+              <CardMovie movie={clickedMovie} closeOverlay={onOverlayClick} />
+            )}
+          </BigMovie>
+        </AnimatePresence>
+      )}
+    </Wrapper>
   );
 }
 

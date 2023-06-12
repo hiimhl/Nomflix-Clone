@@ -62,18 +62,21 @@ function Home() {
         <>
           <Banner data={bannerMovie} />
           <Slider
+            key={"now"}
             data={nowData}
             dataType="now"
             title={"Now Playing Movies"}
             path="movies"
           />
           <Slider
+            key={"top"}
             data={topRatedData}
             dataType="top"
             title={"Top Rated Movies"}
             path="movies"
           />
           <Slider
+            key={"up"}
             data={upComingData}
             dataType="up"
             title={"Upcoming Movies"}

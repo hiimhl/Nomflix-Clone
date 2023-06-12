@@ -50,21 +50,18 @@ function Tv() {
             dataType="airing"
             title={"Airing Tv Show"}
             path="tv"
-            tv="tv"
           />
           <Slider
             data={popularData}
             dataType="popular"
             title={"Popular Tv Show"}
             path="tv"
-            tv="tv"
           />
           <Slider
             data={topRatedData}
             dataType="top"
             title={"Top Rated Tv Show"}
             path="tv"
-            tv="tv"
           />
         </>
       )}

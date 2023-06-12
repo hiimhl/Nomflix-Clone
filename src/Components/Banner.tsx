@@ -8,29 +8,17 @@ import { BigMovie, Overlay } from "./UI/Overlay";
 
 const Wrapper = styled.div<{ bgphoto: string }>`
   height: auto;
-  min-height: 45vw;
+  height: 85vh;
   width: 100vw;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
-
+  padding: 0 5%;
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)),
     url(${(props) => props.bgphoto});
   background-size: cover;
-
-  h2 {
-    font-size: 60px;
-    margin-left: 60px;
-    margin-bottom: 20px;
-    font-weight: 600;
-  }
-
-  p {
-    margin-left: 60px;
-    font-size: 26px;
-    width: 50%;
-  }
+  background-position: center;
 
   @media screen and (max-width: 1440px) {
     h2 {
@@ -50,16 +38,6 @@ const Wrapper = styled.div<{ bgphoto: string }>`
       font-size: 14px;
     }
   }
-  @media screen and (max-width: 600px) {
-    min-height: 65vw;
-    h2 {
-      font-size: 20px;
-      width: 50%;
-    }
-    p {
-      display: none;
-    }
-  }
 
   /* Mobile */
   @media screen and (max-width: 430px) {
@@ -67,6 +45,20 @@ const Wrapper = styled.div<{ bgphoto: string }>`
   }
 `;
 
+const Content = styled.div`
+  h2 {
+    font-size: 60px;
+    margin-left: 60px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  p {
+    margin-left: 60px;
+    font-size: 26px;
+    width: 50%;
+  }
+`;
 const DetailBtn = styled.button`
   cursor: pointer;
   border: 1px solid ${(props) => props.theme.white.lighter};
@@ -109,11 +101,14 @@ function Banner({ data }: IProps) {
   const onOverlayClick = () => navigate(`/`);
   return (
     <Wrapper bgphoto={makeImagePath(data?.backdrop_path || "")}>
-      <h2>{data?.title}</h2>
-      <p>{data?.overview}</p>
-      <DetailBtn onClick={() => onBoxClicked(data?.id ?? 0)}>
-        자세히 보기
-      </DetailBtn>
+      <Content>
+        <h2>{data?.title}</h2>
+        <p>{data?.overview.slice(0, 200) + "..."}</p>
+        <DetailBtn onClick={() => onBoxClicked(data?.id ?? 0)}>
+          자세히 보기
+        </DetailBtn>
+      </Content>
+
       {clickDetail ? (
         <>
           <Overlay onClick={onOverlayClick} />
